@@ -4,5 +4,5 @@ require 'sinatra/activerecord/rake'
 desc 'Start console sandbox to interact with models'
 task :console do
   ActiveRecord::Base.logger = Logger.new(STDOUT)
-  Pry.star
+  Pry.start
 end
