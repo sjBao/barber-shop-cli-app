@@ -1,22 +1,16 @@
 class CLI
   PROMPT = TTY::Prompt.new
 
-  def login_menu
-    
-  end
-
-  def main_menu
-    
-  end
-
-  def self.start
-    cli = self.new
-    cli.welcome_message
-  end
-
-  def welcome_message
-    puts "Welcome to 12 Pell".bold
-    sleep 0.5
-    puts "Come get this 🔥 Cut".bold
+  private
+  # Aspect oriented programming: puts clear before some methods
+  # https://stackoverflow.com/questions/5513558/executing-code-for-every-method-call-in-a-ruby-module
+  def self.before(*names)
+    names.each do |name|
+      m = instance_method(name)
+      define_method(name) do |*args, &block|  
+        yield
+        m.bind(self).(*args, &block)
+      end
+    end
   end
 end
