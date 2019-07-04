@@ -5,7 +5,6 @@ An appointment tracking app for clients and barbers at 12 pell.
 * As a barber, I want to be able to see what appointments I have.
   * should tell me what time.
   * who is the client.
-  * which chair is the cut for.
   * additional notes.
 * As a barber, I want to be able to update or cancel(delete) an appointment.
 
