@@ -15,8 +15,8 @@ class CLI
   end
 
   def welcome_message
-    puts "Welcome to 12 Pell"
+    puts "Welcome to 12 Pell".bold
     sleep 0.5
-    puts "Come get this 🔥 Cut"
+    puts "Come get this 🔥 Cut".bold
   end
 end
