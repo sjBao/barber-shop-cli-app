@@ -7,7 +7,7 @@ class App < CLI
   
   def welcome_menu
     PROMPT.select 'Are you a client or a barber?' do |m|
-      m.choice "Client", -> { @client_cli.login }
+      m.choice "Client", -> { @client_cli.login_menu }
       m.choice "Barber", -> {  }
       m.choice "Exit"
     end
