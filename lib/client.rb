@@ -1,3 +1,4 @@
-class Client < ApplicationRecord
+class Client < ActiveRecord::Base
+  
 
 end

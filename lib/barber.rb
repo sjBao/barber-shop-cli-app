@@ -1,3 +1,4 @@
-class Barber < ApplicationRecord
+class Barber < ActiveRecord::Base
+  
   
 end
