@@ -1,3 +1,3 @@
-def ApplicationRecord < ActiveRecord::Base
+class ApplicationRecord < ActiveRecord::Base
   
 end
