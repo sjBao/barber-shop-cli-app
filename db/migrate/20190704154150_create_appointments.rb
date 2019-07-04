@@ -5,7 +5,7 @@ class CreateAppointments < ActiveRecord::Migration[5.2]
       t.integer :client_id
       t.string :notes
 
-      t.timestamp :time_slot
+      t.datetime :time_slot
     end
   end
 end
