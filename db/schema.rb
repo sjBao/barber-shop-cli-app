@@ -10,22 +10,6 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_04_154150) do
-
-  create_table "appointments", force: :cascade do |t|
-    t.integer "barber_id"
-    t.integer "client_id"
-    t.string "notes"
-    t.datetime "time_slot"
-  end
-
-  create_table "barbers", force: :cascade do |t|
-    t.string "name"
-  end
-
-  create_table "clients", force: :cascade do |t|
-    t.string "name"
-    t.string "email"
-  end
+ActiveRecord::Schema.define(version: 0) do
 
 end
