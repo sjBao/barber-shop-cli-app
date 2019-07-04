@@ -10,6 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 2019_07_04_155725) do
+
+  create_table "appointments", force: :cascade do |t|
+    t.integer "barber_id"
+    t.integer "client_id"
+    t.string "notes"
+    t.datetime "time_slot"
+    t.index ["barber_id"], name: "index_appointments_on_barber_id"
+    t.index ["client_id"], name: "index_appointments_on_client_id"
+  end
+
+  create_table "barbers", force: :cascade do |t|
+    t.string "name"
+    t.index ["name"], name: "index_barbers_on_name", unique: true
+  end
+
+  create_table "clients", force: :cascade do |t|
+    t.string "name"
+    t.string "email"
+    t.index ["email"], name: "index_clients_on_email", unique: true
+  end
 
 end
