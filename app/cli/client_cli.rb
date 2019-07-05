@@ -2,9 +2,9 @@ class ClientCli < CLI
 
   def login
     user_input = PROMPT.ask "What is your email?"
-    @current_user = Client.find_by(email: user_input)
+    @client = Client.find_by(email: user_input)
 
-    if @current_user.nil?
+    if @client.nil?
       "We we couldn't find a user with the email: #{user_input} in our database.".slow_print
       login_menu
     else
@@ -51,14 +51,76 @@ class ClientCli < CLI
   end
 
   def book_appointment
-    "Let's book an appointment".slow_print
+    barber = select_barber
+    month = select_month
+    day = select_day(month)
+    hour = select_hours
+    notes = PROMPT.ask("Additional notes for barber (press enter to continue).")
+
+    p Time.parse("#{month}, #{day}, #{hour}")
+    @client.appointments.create(barber: barber, time_slot: Time.parse("#{month.strftime('%B')}, #{day}, #{hour}"), notes: notes)
+  end
+
+
+
+  def select_barber
     PROMPT.select "Who would you like to book an appointment with?" do |m|
       Barber.all.each do |barber| 
-        m.choice barber.name, -> {  }
+        m.choice barber.name, barber
       end
       m.choice "Back", -> { main_menu }
     end
   end
 
+  def select_month
+    PROMPT.select "Choose a month" do |m|
+      next_3_months.each { |month| m.choice month.strftime('%B'), month }
+    end
+  end
+
+  def select_day(datetime)
+    if Time.now.strftime('%B') == datetime.strftime('%B')
+      select_day_from_current_month
+    else
+      select_day_from_month(datetime)
+    end
+  end
+
+  def select_hours
+    hours = (0..18).map { |num| parse_working_hours(num) }
+
+    PROMPT.select "What time?", help: "Select a time:" do |m|
+      m.marker "👉"
+      m.choices hours
+    end
+  end
+
   before(:login, :new_account, :book_appointment) { puts `clear` }
+
+  private
+
+  def next_3_months
+    (0..2).map { |num| Time.now + (num * 2628002.88) }
+  end
+
+  def select_day_from_current_month
+    PROMPT.select "Which day?", help: "Select a day:" do |m|
+      m.marker "👉"
+      m. choices(Date.today.day..Date.today.end_of_month.day)
+    end
+  end
+
+  def select_day_from_month(datetime)
+    PROMPT.select "Which day?", help: "Select a day:" do |m|
+      m.marker "👉"
+      m.choices (1..datetime.end_of_month.day)
+    end
+  end
+
+  def parse_working_hours(num)
+    "#{11 + (num * 0.5).floor}:#{(num * 30) % 60}".to_datetime.strftime('%I:%M %p')
+  end
+
+
+
 end 
