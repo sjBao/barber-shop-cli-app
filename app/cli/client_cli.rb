@@ -39,36 +39,64 @@ class ClientCli < CLI
   end
 
   def main_menu
+    @client.list_appointments
     PROMPT.select "What would you like to do?" do |m|
       m.choice "Book an Appointment", -> { book_appointment }
-      m.choice "View Appointment", -> {  }
-      m.choice "Update Appointment", -> {  }
-      m.choice "Cancel Appointment", -> {  }
+      m.choice "Update Appointment", -> { update_appointments }
+      m.choice "Cancel Appointment", -> { cancel_appointments }
       m.choice "Logout", -> { login_menu }
-      m.choice "Exit", -> { "Stay fresh!".bold.slow_print; sleep(2) }
+      m.choice "Exit", -> { puts `clear`; "Stay fresh!".bold.slow_print; sleep(2) }
 
     end
   end
 
   def book_appointment
     barber = select_barber
-    month = select_month
-    day = select_day(month)
-    hour = select_hours
-    notes = PROMPT.ask("Additional notes for barber (press enter to continue).")
+    month = select_month if barber.present?
+    day = select_day(month) if month.present?
+    hour = select_hours if day.present?
+    notes = PROMPT.ask("Additional notes for barber (press enter to continue).") if hour.present?
 
-    p Time.parse("#{month}, #{day}, #{hour}")
-    @client.appointments.create(barber: barber, time_slot: Time.parse("#{month.strftime('%B')}, #{day}, #{hour}"), notes: notes)
+    @client.appointments.create(
+      barber: barber, 
+      time_slot: Time.parse("#{month.strftime('%B')}, #{day}, #{hour}"), 
+      notes: notes
+    ) if barber.present? && month.present? &&  day.present?
+
+    main_menu
   end
 
+  def update_appointments
+    PROMPT.select "Which appointment do you want to update?" do |m|
+      @client.appointments.order(:time_slot).each do |appt|
+        m.choice appt.list_item_view, appt
+      end
+    end
+  end
 
+  def cancel_appointments
+    PROMPT.select "Which appointment do you want to cancel?" do |m|
+      @client.appointments.order(:time_slot).each do |appt|
+        m.choice appt.list_item_view, -> { remove_appointment(appt) }
+      end
+      m.choice "back", -> { main_menu }
+    end
+  end
+
+  def remove_appointment(appt)
+    if confirm
+      appt.destroy
+      @client.reload
+    end
+    main_menu
+  end
 
   def select_barber
     PROMPT.select "Who would you like to book an appointment with?" do |m|
       Barber.all.each do |barber| 
         m.choice barber.name, barber
       end
-      m.choice "Back", -> { main_menu }
+      m.choice "Back", nil
     end
   end
 
@@ -86,16 +114,7 @@ class ClientCli < CLI
     end
   end
 
-  def select_hours
-    hours = (0..18).map { |num| parse_working_hours(num) }
-
-    PROMPT.select "What time?", help: "Select a time:" do |m|
-      m.marker "👉"
-      m.choices hours
-    end
-  end
-
-  before(:login, :new_account, :book_appointment) { puts `clear` }
+  before(:login, :new_account, :book_appointment, :main_menu, :cancel_appointments) { puts `clear` }
 
   private
 
@@ -107,6 +126,7 @@ class ClientCli < CLI
     PROMPT.select "Which day?", help: "Select a day:" do |m|
       m.marker "👉"
       m. choices(Date.today.day..Date.today.end_of_month.day)
+      m.choice "Back", nil
     end
   end
 
@@ -114,13 +134,22 @@ class ClientCli < CLI
     PROMPT.select "Which day?", help: "Select a day:" do |m|
       m.marker "👉"
       m.choices (1..datetime.end_of_month.day)
+      m.choice "Back", nil
+    end
+  end
+
+  def select_hours
+    hours = (0..18).map { |num| parse_working_hours(num) }
+
+    PROMPT.select "What time?", help: "Select a time:" do |m|
+      m.marker "👉"
+      m.choices hours
+      m.choice "Back", nil
     end
   end
 
   def parse_working_hours(num)
     "#{11 + (num * 0.5).floor}:#{(num * 30) % 60}".to_datetime.strftime('%I:%M %p')
   end
-
-
 
 end 
